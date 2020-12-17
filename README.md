@@ -1,7 +1,8 @@
 # Konstantinov86_platform
 Konstantinov86 Platform repository
 
-Выполнено ДЗ № 1
+
+<details><summary>ДЗ № 1</summary>
 
  - [V] Основное ДЗ
  - [V] Задание со *
@@ -33,3 +34,23 @@ kube-apiserver- static pod -управляется kubelet;
 
 ## PR checklist:
  - [V] Выставлен label с темой домашнего задания
+ </details>
+
+ <details><summary>ДЗ № 2</summary>
+
+ - [V] Основное ДЗ
+ - [V] Задание со *
+
+## В процессе сделано:
+ - создание replicaset frontend-replicaset.yaml:
+ Добавление label selection для корректной работы;
+- создание deployment paymentservice-replicaset.yaml;
+- создание deployment strategy blue-green и reverse;
+- создание daemonset node-exporter-daemonset.yaml;
+- создание daemonset node-exporter-daemonset.yaml с запуском на мастер ноде :
+`tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule`
+## PR checklist:
+ - [V] Выставлен label с темой домашнего задания
+ </details>
