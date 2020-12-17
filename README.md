@@ -1,7 +1,7 @@
 # Konstantinov86_platform
 Konstantinov86 Platform repository
 
-Выполнено ДЗ № 1
+<details><summary>ДЗ № 1</summary>
 
  - [V] Основное ДЗ
  - [V] Задание со *
@@ -33,3 +33,4 @@ kube-apiserver- static pod -управляется kubelet;
 
 ## PR checklist:
  - [V] Выставлен label с темой домашнего задания
+ </details>
