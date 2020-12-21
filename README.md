@@ -44,7 +44,7 @@ kube-apiserver- static pod -управляется kubelet;
 ## В процессе сделано:
  - создание replicaset frontend-replicaset.yaml:
  - Добавление label selection для корректной работы;
-- создание deployment paymentservice-replicaset.yaml;
+ - создание deployment paymentservice-replicaset.yaml;
 - создание deployment strategy blue-green и reverse;
 - создание daemonset node-exporter-daemonset.yaml;
 - создание daemonset node-exporter-daemonset.yaml с запуском на мастер ноде :
