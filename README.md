@@ -54,3 +54,41 @@ kube-apiserver- static pod -управляется kubelet;
 ## PR checklist:
  - [V] Выставлен label с темой домашнего задания
  </details>
+
+ <details><summary>ДЗ № 3</summary>
+
+ - [V] Основное ДЗ
+
+## В процессе сделано:
+- [V] Создал Service Account bob, дать ему роль admin в рамках всего
+кластера;
+- [V] Создал Service Account dave без доступа к кластеру
+- [V] Создал Namespace prometheus;
+- [V] Создал Service Account carol в этом Namespace;
+- [V] Дал всем Service Account в Namespace prometheus возможность
+делать get, list, watch в отношении Pods всего кластера;
+- [V] Создал Namespace dev;
+- [V] Создал Service Account jane в Namespace dev;
+- [V] Дал jane роль admin в рамках Namespace dev;
+- [V] Создал Service Account ken в Namespace dev;
+- [V] Дал ken роль view в рамках Namespace dev.
+
+## PR checklist:
+ - [V] Выставлен label с темой домашнего задания
+ </details>
+
+  <details><summary>ДЗ № 4</summary>
+
+ - [V] Основное ДЗ
+ - [V] Задание со *
+
+## В процессе сделано:
+- [V]  Добавил пробы в под;
+- [V] Создал deployment со стратегией обновления;
+- [V] Создал service и включил ipvs;
+- [V] Установил Metalb и настроил маршрутизацию;
+- [V] открыл доступ к coreDNS;
+- [V] установил и открыл доступ к dashboard;
+## PR checklist:
+ - [V] Выставлен label с темой домашнего задания
+ </details>
