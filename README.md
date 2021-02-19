@@ -83,12 +83,54 @@ kube-apiserver- static pod -управляется kubelet;
  - [V] Задание со *
 
 ## В процессе сделано:
-- [V]  Добавил пробы в под;
+- [V] Добавил пробы в под;
 - [V] Создал deployment со стратегией обновления;
 - [V] Создал service и включил ipvs;
 - [V] Установил Metalb и настроил маршрутизацию;
 - [V] открыл доступ к coreDNS;
 - [V] установил и открыл доступ к dashboard;
+## PR checklist:
+ - [V] Выставлен label с темой домашнего задания
+ </details>
+
+  <details><summary>ДЗ № 5</summary>
+
+ - [V] Основное ДЗ
+ - [V] Задание со *
+
+## В процессе сделано:
+- [V] Создал statefulset minio;
+- [V] Создал headless service;
+- [V] Gроверил работу minio;
+- [V] Сделал statefulset c secret
+## PR checklist:
+ - [V] Выставлен label с темой домашнего задания
+ </details>
+
+ <details><summary>ДЗ № 6</summary>
+
+ - [V] Основное ДЗ
+ - [V] Задание со *
+
+## В процессе сделано:
+- [V] Создан кластер в Google Cloud;
+- [V] Установлен из Helm - ingress-nginx и cert-manager;
+- [V] Создан issuer lets encrypt для certmanager;
+- [V] Установлен и кастомизирован chartmuseum -https://chartmuseum.35.228.182.231.nip.io/;
+- [V] * Работа с chartmuseum:
+Активируем api в values.yaml - DISABLE_API: false;
+Создадим собственный чарт - helm create mychart;
+Запакуем - helm package .;
+Запушим в репозиторий - curl --data-binary "@mychart-0.1.0.tgz" https://chartmuseum.35.228.182.231.nip.io/api/chart;
+Обновим - helm repo update ;
+Установим - helm install mychart chartmuseum/mychart;
+- [V] Установлен harbor - https://harbor.35.228.182.231.nip.io/;
+- [V] * Описана установка nginx-ingress, cert-manager и harbor в helmfile;
+- [V] Создан свой helmchart  hipster-shop;
+- [V] * Добавлен requirements.yaml (dependencies.yaml в helm 3) redis;
+- [V] Создан деплой при помощи kubecfg;
+- [V] Создан деплой при помощи kustomize(test и prod).
+
 ## PR checklist:
  - [V] Выставлен label с темой домашнего задания
  </details>
