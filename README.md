@@ -134,3 +134,35 @@ kube-apiserver- static pod -управляется kubelet;
 ## PR checklist:
  - [V] Выставлен label с темой домашнего задания
  </details>
+
+ <details><summary>ДЗ № 7</summary>
+
+ - [V] Основное ДЗ
+ - [V] Задание со *
+
+## В процессе сделано:
+- [V] Создан CustomResource и CustomResourceDefinition my-sql;
+- [V] Сделана Валидация;
+- [V] Создан контроллер ;
+- [V] Собран образ контроллера -залит на dockerhub - wenger23/otus_demo:0.1 ;
+- [V] проверка работоспособности контроллера :
+major@MacBook-Air  ~/virtual/Konstantinov86_platform/kubernetes-operator/deploy   kubernetes-operator  
+kubectl get jobs
+NAME                         COMPLETIONS   DURATION   AGE
+backup-mysql-instance-job    1/1           3s         2m18s
+restore-mysql-instance-job   1/1           45s        82s
+
+major@MacBook-Air  ~/virtual/Konstantinov86_platform/kubernetes-operator/deploy   kubernetes-operator  kubectl exec -it $MYSQLPOD -- mysql -potuspassword -e "select * from test;" otus-database
+mysql: [Warning] Using a password on the command line interface can be insecure.
++----+-------------+
+| id | name        |
++----+-------------+
+|  1 | some data   |
+|  2 | some data-2 |
+|  3 | some data-2 |
+|  4 | some data-2 |
+|  5 | some data-2 |
++----+-------------+
+## PR checklist:
+ - [V] Выставлен label с темой домашнего задания
+ </details>
