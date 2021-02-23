@@ -83,12 +83,86 @@ kube-apiserver- static pod -управляется kubelet;
  - [V] Задание со *
 
 ## В процессе сделано:
-- [V]  Добавил пробы в под;
+- [V] Добавил пробы в под;
 - [V] Создал deployment со стратегией обновления;
 - [V] Создал service и включил ipvs;
 - [V] Установил Metalb и настроил маршрутизацию;
 - [V] открыл доступ к coreDNS;
 - [V] установил и открыл доступ к dashboard;
+## PR checklist:
+ - [V] Выставлен label с темой домашнего задания
+ </details>
+
+  <details><summary>ДЗ № 5</summary>
+
+ - [V] Основное ДЗ
+ - [V] Задание со *
+
+## В процессе сделано:
+- [V] Создал statefulset minio;
+- [V] Создал headless service;
+- [V] Gроверил работу minio;
+- [V] Сделал statefulset c secret
+## PR checklist:
+ - [V] Выставлен label с темой домашнего задания
+ </details>
+
+ <details><summary>ДЗ № 6</summary>
+
+ - [V] Основное ДЗ
+ - [V] Задание со *
+
+## В процессе сделано:
+- [V] Создан кластер в Google Cloud;
+- [V] Установлен из Helm - ingress-nginx и cert-manager;
+- [V] Создан issuer lets encrypt для certmanager;
+- [V] Установлен и кастомизирован chartmuseum -https://chartmuseum.35.228.182.231.nip.io/;
+- [V] * Работа с chartmuseum:
+Активируем api в values.yaml - DISABLE_API: false;
+Создадим собственный чарт - helm create mychart;
+Запакуем - helm package .;
+Запушим в репозиторий - curl --data-binary "@mychart-0.1.0.tgz" https://chartmuseum.35.228.182.231.nip.io/api/chart;
+Обновим - helm repo update ;
+Установим - helm install mychart chartmuseum/mychart;
+- [V] Установлен harbor - https://harbor.35.228.182.231.nip.io/;
+- [V] * Описана установка nginx-ingress, cert-manager и harbor в helmfile;
+- [V] Создан свой helmchart  hipster-shop;
+- [V] * Добавлен requirements.yaml (dependencies.yaml в helm 3) redis;
+- [V] Создан деплой при помощи kubecfg;
+- [V] Создан деплой при помощи kustomize(test и prod).
+
+## PR checklist:
+ - [V] Выставлен label с темой домашнего задания
+ </details>
+
+ <details><summary>ДЗ № 7</summary>
+
+ - [V] Основное ДЗ
+ - [V] Задание со *
+
+## В процессе сделано:
+- [V] Создан CustomResource и CustomResourceDefinition my-sql;
+- [V] Сделана Валидация;
+- [V] Создан контроллер ;
+- [V] Собран образ контроллера -залит на dockerhub - wenger23/otus_demo:0.1 ;
+- [V] проверка работоспособности контроллера :
+major@MacBook-Air  ~/virtual/Konstantinov86_platform/kubernetes-operator/deploy   kubernetes-operator  
+kubectl get jobs
+NAME                         COMPLETIONS   DURATION   AGE
+backup-mysql-instance-job    1/1           3s         2m18s
+restore-mysql-instance-job   1/1           45s        82s
+
+major@MacBook-Air  ~/virtual/Konstantinov86_platform/kubernetes-operator/deploy   kubernetes-operator  kubectl exec -it $MYSQLPOD -- mysql -potuspassword -e "select * from test;" otus-database
+mysql: [Warning] Using a password on the command line interface can be insecure.
++----+-------------+
+| id | name        |
++----+-------------+
+|  1 | some data   |
+|  2 | some data-2 |
+|  3 | some data-2 |
+|  4 | some data-2 |
+|  5 | some data-2 |
++----+-------------+
 ## PR checklist:
  - [V] Выставлен label с темой домашнего задания
  </details>
