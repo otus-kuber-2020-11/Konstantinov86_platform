@@ -131,6 +131,7 @@ kube-apiserver- static pod -управляется kubelet;
 - [V] Создан деплой при помощи kubecfg;
 - [V] Создан деплой при помощи kustomize(test и prod).
 
+
 ## PR checklist:
  - [V] Выставлен label с темой домашнего задания
  </details>
