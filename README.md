@@ -166,3 +166,27 @@ mysql: [Warning] Using a password on the command line interface can be insecure.
 ## PR checklist:
  - [V] Выставлен label с темой домашнего задания
  </details>
+
+ <details><summary>ДЗ № 8</summary>
+
+ - [V] Основное ДЗ
+ - [V] Задание со *
+
+## В процессе сделано:
+- [V] Создан кастомный деплоймент и сервис nginx  -deployment.yaml,service.yaml;
+- [V] Выбран 2й вариант сложности - Поставить prometheus-operator через kubectl apply из офф.
+репозитория (Bring`em on!)
+- [V] Создан деплоймент и сервис nginx exporter;
+- [V] Создан serivcemonitor.yaml ,который смотрит на nginx exporter;
+- [V] Работа выполнялась в google cloud - сделаны ингресс сервисы /ingress-services/ingress-grafana.yaml ingress-prometheus.yaml для проброса наружу grafana и prometheus:
+
+https://prometheus.35.228.182.231.nip.io/targets
+https://grafana.35.228.182.231.nip.io/ - admin/admin - dashboard - NGINX exporter
+## PR checklist:
+ - [V] Выставлен label с темой домашнего задания
+ </details>
+
+ <details><summary>ДЗ № 6</summary>
+
+ - [V] Основное ДЗ
+ - [V] Задание со *
