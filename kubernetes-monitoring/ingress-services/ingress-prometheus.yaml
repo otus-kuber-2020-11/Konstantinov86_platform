@@ -1,0 +1,26 @@
+---
+  apiVersion: extensions/v1beta1
+  kind: Ingress
+  metadata:
+    name: ingress-prometheus
+    namespace: monitoring
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-issuer"
+      cert-manager.io/acme-challenge-type: http01
+      
+  spec:
+    tls:
+    - hosts:
+      - grafana.35.228.182.231.nip.io 
+      secretName: grafana-tls
+    rules:
+    - host: 35.228.182.231.nip.io
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: grafana
+            servicePort: 3000
+        
