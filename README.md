@@ -401,3 +401,219 @@ Events:  <none>`
 ## PR checklist:
  - [V] Выставлен label с темой домашнего задания
  </details>
+
+<details><summary>ДЗ №11</summary>
+
+ - [V] Основное ДЗ
+ - [V] Задание со *
+
+## В процессе сделано:
+- [V] Установлен vault и consul:
+`helm status vault
+NAME: vault
+LAST DEPLOYED: Wed Mar 17 16:39:04 2021
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing HashiCorp Vault!
+
+Now that you have deployed Vault, you should look over the docs on using
+Vault with Kubernetes available here:
+
+https://www.vaultproject.io/docs/
+
+
+Your release is named vault. To learn more about the release, try:
+
+  $ helm status vault
+  $ helm get manifest vault`
+
+- [V]  инициализация ключей:
+`vault operator init --key-shares=1 --key-threshold=1
+Unseal Key 1: w5l3gwMhZoYPvvU0d8PPFVj3OPuO/IMriOa9oEFn1uQ=
+
+Initial Root Token: s.05dV37GkrjVSSg7q8ZtpYHyC
+
+Vault initialized with 1 key shares and a key threshold of 1. Please securely
+distribute the key shares printed above. When the Vault is re-sealed,
+restarted, or stopped, you must supply at least 1 of these keys to unseal it
+before it can start servicing requests.
+
+Vault does not store the generated master key. Without at least 1 key to
+reconstruct the master key, Vault will remain permanently sealed!
+
+It is possible to generate new unseal keys, provided you have a quorum of
+existing unseal keys shares. See "vault operator rekey" for more information.`
+
+- [V] Unseal подов:
+`Key             Value
+---             -----
+Seal Type       shamir
+Initialized     true
+Sealed          false
+Total Shares    1
+Threshold       1
+Version         1.6.2
+Storage Type    consul
+Cluster Name    vault-cluster-9c25cec9
+Cluster ID      7aaa00fb-2c8b-b74e-f8c7-529afa24b899
+HA Enabled      true
+HA Cluster      https://vault-0.vault-internal:8201
+HA Mode         active`
+- [V] login:
+`Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run "vault login"
+again. Future Vault requests will automatically use this token.
+
+Key                  Value
+---                  -----
+token                s.05dV37GkrjVSSg7q8ZtpYHyC
+token_accessor       tM5BMDAZLF7fTGYkprwDyOVV
+token_duration       ∞
+token_renewable      false
+token_policies       ["root"]
+identity_policies    []
+policies             ["root"]`
+- [V] auth list:
+`Path      Type     Accessor               Description
+----      ----     --------               -----------
+token/    token    auth_token_40540e1d    token based credentials`
+- [V] Завели секреты:
+`key                 Value
+---                 -----
+refresh_interval    768h
+password            asajkjkahs
+username            otus`
+- [V] Включил авторизацию K8S :
+`Path           Type          Accessor                    Description
+----           ----          --------                    -----------
+kubernetes/    kubernetes    auth_kubernetes_d2cb5f5c    n/a
+token/         token         auth_token_40540e1d         token based credentials`
+- [V] Создали  service account  с  clusterrolebinding;
+- [V] создали файл политики и ролей и записали в  vault;
+- [V] Провели проверку политик - Не смогли записать otus-rw/config потому что в политиках ранее не указали разрешение на update:
+`path "otus/otus-rw/*" {
+capabilities = ["read", "create", "list","update"]`
+- [V] Скопировали vault-agent-k8s-demo из репозитория vault-guides и скорректировал конфиги с учетом ранее
+созданых ролей и секретов  -  config-k8s/example-k8-spec.yaml  и  configmap.yaml
+- [V] Запустили под и проверили  index.html :
+`cat index.html
+<html>
+<body>
+<p>Some secrets:</p>
+<ul>
+<li><pre>username: otus</pre></li>
+<li><pre>password: asajkjkahs</pre></li>
+</ul>
+
+</body>
+</html>`
+
+- [V] Включили pki секретс и подписали урлы;
+- [V] создали промежуточный сертификат и прописали его в vault;
+- [V] Создали и отозвали сертификат:
+'
+Key                 Value
+---                 -----
+ca_chain            [-----BEGIN CERTIFICATE-----
+MIIDnDCCAoSgAwIBAgIUDKudU/Hz+k6R9K09W7+SipjFZOYwDQYJKoZIhvcNAQEL
+BQAwFTETMBEGA1UEAxMKZXhhbXBsZS5ydTAeFw0yMTAzMTcxODEzNDdaFw0yNjAz
+MTYxODE0MTdaMCwxKjAoBgNVBAMTIWV4YW1wbGUucnUgSW50ZXJtZWRpYXRlIEF1
+dGhvcml0eTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALwB64cD8ZF3
+/S7FFdSyP5VhCDg0KCCLFT90NpyfO6bazMVBE0ZaTr8EMBEf+OMP3yfZnSe+k35R
+Xuh3Zmc44QzQjjbaniYyo5R6pmU5a4G4Qer2xr8owQdKa6ga+iOkR5WBrR9oT6Zo
+6Cz/xQTHXw76mEqewnVOzwiaDtUOD0LBzh29c3n9iISs17xCLtqj+fIB53/gXP7t
+GaTWoosOKNt5YNZymhukQogsWqiqQ8Oqg8G2AKgVX1fzzUKam9ysyEXMzmOvb5qw
+F6pSZWksEna8eJIKNfF87PYRL4R5DKlojpxAtJxJxKKUR0RwHcSSN1L6GpLLuJzh
+0VEU061eUmUCAwEAAaOBzDCByTAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUw
+AwEB/zAdBgNVHQ4EFgQU47WRdeilIgXRWtDqLkj6S8TMtkEwHwYDVR0jBBgwFoAU
+2pvAhkyW9WZQaAe+94jnsvedELgwNwYIKwYBBQUHAQEEKzApMCcGCCsGAQUFBzAC
+hhtodHRwOi8vdmF1bHQ6ODIwMC92MS9wa2kvY2EwLQYDVR0fBCYwJDAioCCgHoYc
+aHR0cDovL3ZhdWx0OjgyMDAvdjEvcGtpL2NybDANBgkqhkiG9w0BAQsFAAOCAQEA
+P+WTOjdf/N/U4n4MGndU1bSSXWyUo/9E3YiqGp4hmZtBveoQ0lXY1R0/scKkFjuw
+mksphWeBRFUfust8ZlSFaJMpRk6ccPjopLwX6Ap5PVKuqFzmq4MWiIqCtndry7pL
+0BPxsNPPAo23474TUBCeYz61xueqLbZEGosGNxEelR2tj57QSTOSqPjcOpnmSe8T
+1k07Q+TCVBe0qJqT3/20G9idPMXGYoUheL51v2L3ndvpY+XL+DAHDzQNsxr99uGP
+3TrUcIpbmfKkLBGZK1y8tyNZ0JlOrGHwfjfXphX9irs6XxMbbi56B5EVB31f/DdE
+DuCFIsPBZboCwDzywr6xYA==
+-----END CERTIFICATE-----]
+certificate         -----BEGIN CERTIFICATE-----
+MIIDZzCCAk+gAwIBAgIUS4NEFzQgMRGfriQIaukwrzDfFYMwDQYJKoZIhvcNAQEL
+BQAwLDEqMCgGA1UEAxMhZXhhbXBsZS5ydSBJbnRlcm1lZGlhdGUgQXV0aG9yaXR5
+MB4XDTIxMDMxNzE4MTgwMFoXDTIxMDMxODE4MTgzMFowHDEaMBgGA1UEAxMRZ2l0
+bGFiLmV4YW1wbGUucnUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC7
+kD+afSamJb1O+AsxZBYnWb1GthVVisYU1WbHzwduenYOXX3G13XMr1Ifo7tkkxGa
++36ALVte23XCIHP0P3Q2XUo08pFaYdMBxYu2GvTUWZS+ohZyngBXRJCoyhTS6+li
+dx736efR0bAe2nVr6JJrMh6jZzu3/Rtn3jrOJd3zboCUo/G9WMbZKY+0WpIufZtf
+X+6/WAyaCnqrCsv5IDgMcpZq3tVrncR4ZyKj27iAwEvHVrEpkPbASaS8KcpTiSXd
+aFaXzaR/2Ad+MwgrCtBWzpHwRuyLePFuExrp0RqaX8FZ/INRJ2zt9mGcMFb1nRvq
+5FR2XNN4tVfr8jR8YQjBAgMBAAGjgZAwgY0wDgYDVR0PAQH/BAQDAgOoMB0GA1Ud
+JQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAdBgNVHQ4EFgQUl9E8gxgQU384jCUk
+iIYbTX9SrfwwHwYDVR0jBBgwFoAU47WRdeilIgXRWtDqLkj6S8TMtkEwHAYDVR0R
+BBUwE4IRZ2l0bGFiLmV4YW1wbGUucnUwDQYJKoZIhvcNAQELBQADggEBAH9WV9oG
+OXIpu+ay5tl/mWaB5/NniHuoSUqHn+CVtZGCC2zERdAGa0ELNTqiZ5eSrowzu2La
+2rZIN/rUrZrbJgpyN9mIDRBMYBDtmGLgGEbGdynslCTvTGS5g/AKYpmAqT87By+W
+3QEOJUdc+T7HBqLYNt1Tbh5s43166UogMD9m27xvLWkNLbg4pYi22jBOYJyEvYB/
+sBhFNFlXwp6Ngzsp7SsUKg3ukRlZlg6fASjpx2ka6wNri5Cbd6frTdfcPJc/dWTh
+sOg1PXqqFFngHhYfAqgKwOAgR9v2qfOSHyHjVtmP5fOD23VCrWOgmV9EMWfhra47
+OtYwT69DBq0EaFE=
+-----END CERTIFICATE-----
+expiration          1616091510
+issuing_ca          -----BEGIN CERTIFICATE-----
+MIIDnDCCAoSgAwIBAgIUDKudU/Hz+k6R9K09W7+SipjFZOYwDQYJKoZIhvcNAQEL
+BQAwFTETMBEGA1UEAxMKZXhhbXBsZS5ydTAeFw0yMTAzMTcxODEzNDdaFw0yNjAz
+MTYxODE0MTdaMCwxKjAoBgNVBAMTIWV4YW1wbGUucnUgSW50ZXJtZWRpYXRlIEF1
+dGhvcml0eTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALwB64cD8ZF3
+/S7FFdSyP5VhCDg0KCCLFT90NpyfO6bazMVBE0ZaTr8EMBEf+OMP3yfZnSe+k35R
+Xuh3Zmc44QzQjjbaniYyo5R6pmU5a4G4Qer2xr8owQdKa6ga+iOkR5WBrR9oT6Zo
+6Cz/xQTHXw76mEqewnVOzwiaDtUOD0LBzh29c3n9iISs17xCLtqj+fIB53/gXP7t
+GaTWoosOKNt5YNZymhukQogsWqiqQ8Oqg8G2AKgVX1fzzUKam9ysyEXMzmOvb5qw
+F6pSZWksEna8eJIKNfF87PYRL4R5DKlojpxAtJxJxKKUR0RwHcSSN1L6GpLLuJzh
+0VEU061eUmUCAwEAAaOBzDCByTAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUw
+AwEB/zAdBgNVHQ4EFgQU47WRdeilIgXRWtDqLkj6S8TMtkEwHwYDVR0jBBgwFoAU
+2pvAhkyW9WZQaAe+94jnsvedELgwNwYIKwYBBQUHAQEEKzApMCcGCCsGAQUFBzAC
+hhtodHRwOi8vdmF1bHQ6ODIwMC92MS9wa2kvY2EwLQYDVR0fBCYwJDAioCCgHoYc
+aHR0cDovL3ZhdWx0OjgyMDAvdjEvcGtpL2NybDANBgkqhkiG9w0BAQsFAAOCAQEA
+P+WTOjdf/N/U4n4MGndU1bSSXWyUo/9E3YiqGp4hmZtBveoQ0lXY1R0/scKkFjuw
+mksphWeBRFUfust8ZlSFaJMpRk6ccPjopLwX6Ap5PVKuqFzmq4MWiIqCtndry7pL
+0BPxsNPPAo23474TUBCeYz61xueqLbZEGosGNxEelR2tj57QSTOSqPjcOpnmSe8T
+1k07Q+TCVBe0qJqT3/20G9idPMXGYoUheL51v2L3ndvpY+XL+DAHDzQNsxr99uGP
+3TrUcIpbmfKkLBGZK1y8tyNZ0JlOrGHwfjfXphX9irs6XxMbbi56B5EVB31f/DdE
+DuCFIsPBZboCwDzywr6xYA==
+-----END CERTIFICATE-----
+private_key         -----BEGIN RSA PRIVATE KEY-----
+MIIEogIBAAKCAQEAu5A/mn0mpiW9TvgLMWQWJ1m9RrYVVYrGFNVmx88Hbnp2Dl19
+xtd1zK9SH6O7ZJMRmvt+gC1bXtt1wiBz9D90Nl1KNPKRWmHTAcWLthr01FmUvqIW
+cp4AV0SQqMoU0uvpYnce9+nn0dGwHtp1a+iSazIeo2c7t/0bZ946ziXd826AlKPx
+vVjG2SmPtFqSLn2bX1/uv1gMmgp6qwrL+SA4DHKWat7Va53EeGcio9u4gMBLx1ax
+KZD2wEmkvCnKU4kl3WhWl82kf9gHfjMIKwrQVs6R8Ebsi3jxbhMa6dEaml/BWfyD
+USds7fZhnDBW9Z0b6uRUdlzTeLVX6/I0fGEIwQIDAQABAoIBAFdS4Unb2pKgH3MU
+qKFmJ6pKbYTuYSBia7ZnZGLCUINvIGevv09EIOQa+/EfGa/JiPjO/iZO96tCIaEv
+2sxsfn6REGt2Q5YA1WyNvG4cPsBetJHMhQb36NC4a2EqNGe+zfm53AEwNW3KYmT6
+8JA8x26A9yK8fWE7xfal0FsJ5jve+lSufKVWuFw6FDXyUhxKucSucMSLRN4d/64y
+p3OumW/aQgOTWeeESAuPlHlhRIgsMhAOkYOoEvW+XPYkXWM0KVWuIb1oHY4XPcOC
+sWRp3e/RzNrrtroSxESHVATQ7N+pRU6VuFLnvJANlcWv289CdNGa3ZYA7PNveUQa
+fqkJsMECgYEA0JiCi0d/ZPW2KoJIYmRxBlx3fGF953lnJ5eWNk6SfT9xInWaJfJh
+dnYjfmFBUhgTYOxtbm/pJkPeAj3L8c8TV+1Nfrf+OIQvMThJlIilh1HbHiMuGgYZ
+aMAPtyApTQcoz906gtnToyeftDIei17rb3LWP6W2O/WiYpTMy0c6HkcCgYEA5jAk
+egcSL6g6vcuW4nozmIGytEEoVE1RDW+pBqUiF3DibWX8nlVoeV7T0UpXS+JK+ArU
+kvvBquqfS5ngB/nGYPwfv3rHAb7OumUNYzJ6NRH5hWoWqSA1h63IHgObTefetFdY
+kE0sumfhkbukPbO0dWVDhDqUlB6OfSnf/An9fLcCgYAtV9mYuRQCOD8/Ak8FxFul
+TFhU20RpGsTHoHXwnCfPvgizuuilMwjonUmd4To3xDACM6KeDQmbXclWp2Q7zg2g
+YV8lGo3Sbzlq85dbCFEjFzIQXQlactT3JjjET+NqcRH4DVj4tK0CnExk+TgWh62Z
+7laQQ09XvU9tKndSAMurZQKBgGPRLpAn7s/xsH9LAIP3H9abL2YQ9y8PU/1ylSZH
+h3AIyHdOCWyTdrli0JFqHk7Os1m6QJH4T/QQx8Dd2hM7UbYOvqmm0RNFrZmQZmzE
+n8/RmpUq+uaeC/ho+GVjhP4UdTNYyRPSE3pFv8AVUVRcT/20SsHVMUbFtV47QWCm
+6GAjAoGAZav1DxNz9DAIQpw5kW40UMM7Pk++jWvXsCVKsiXcYUc2tboKAt4WN4Pj
+oqpUNskjE7+98/6yq0yvCKdB89zfO3cmlKueizMfW6ezBix1uoNAHZzk59/cc/Ke
+yceL3hEcIx5RuPmIO2WDDKqKnI2urA2T3nxu8hSEUS4jYVV/sGI=
+-----END RSA PRIVATE KEY-----
+private_key_type    rsa
+serial_number       4b:83:44:17:34:20:31:11:9f:ae:24:08:6a:e9:30:af:30:df:15:83''
+
+
+## PR checklist:
+ - [V] Выставлен label с темой домашнего задания
+ </details>
