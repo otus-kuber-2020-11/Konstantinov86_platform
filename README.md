@@ -409,7 +409,8 @@ Events:  <none>`
 
 ## В процессе сделано:
 - [V] Установлен vault и consul:
-`helm status vault
+```
+helm status vault
 NAME: vault
 LAST DEPLOYED: Wed Mar 17 16:39:04 2021
 NAMESPACE: default
@@ -428,10 +429,12 @@ https://www.vaultproject.io/docs/
 Your release is named vault. To learn more about the release, try:
 
   $ helm status vault
-  $ helm get manifest vault`
+  $ helm get manifest vault"
 
+```
 - [V]  инициализация ключей:
-`vault operator init --key-shares=1 --key-threshold=1
+```
+vault operator init --key-shares=1 --key-threshold=1
 Unseal Key 1: w5l3gwMhZoYPvvU0d8PPFVj3OPuO/IMriOa9oEFn1uQ=
 
 Initial Root Token: s.05dV37GkrjVSSg7q8ZtpYHyC
@@ -447,8 +450,10 @@ reconstruct the master key, Vault will remain permanently sealed!
 It is possible to generate new unseal keys, provided you have a quorum of
 existing unseal keys shares. See "vault operator rekey" for more information.`
 
+```
 - [V] Unseal подов:
-`Key             Value
+```
+Key             Value
 ---             -----
 Seal Type       shamir
 Initialized     true
@@ -461,9 +466,9 @@ Cluster Name    vault-cluster-9c25cec9
 Cluster ID      7aaa00fb-2c8b-b74e-f8c7-529afa24b899
 HA Enabled      true
 HA Cluster      https://vault-0.vault-internal:8201
-HA Mode         active`
+HA Mode         active
 - [V] login:
-`Success! You are now authenticated. The token information displayed below
+Success! You are now authenticated. The token information displayed below
 is already stored in the token helper. You do NOT need to run "vault login"
 again. Future Vault requests will automatically use this token.
 
@@ -475,31 +480,39 @@ token_duration       ∞
 token_renewable      false
 token_policies       ["root"]
 identity_policies    []
-policies             ["root"]`
+policies             ["root"]
+```
 - [V] auth list:
-`Path      Type     Accessor               Description
+```
+Path      Type     Accessor               Description
 ----      ----     --------               -----------
-token/    token    auth_token_40540e1d    token based credentials`
+token/    token    auth_token_40540e1d    token based credentials
 - [V] Завели секреты:
-`key                 Value
+key                 Value
 ---                 -----
 refresh_interval    768h
 password            asajkjkahs
 username            otus`
+```
 - [V] Включил авторизацию K8S :
-`Path           Type          Accessor                    Description
+```
+Path           Type          Accessor                    Description
 ----           ----          --------                    -----------
 kubernetes/    kubernetes    auth_kubernetes_d2cb5f5c    n/a
 token/         token         auth_token_40540e1d         token based credentials`
+```
 - [V] Создали  service account  с  clusterrolebinding;
 - [V] создали файл политики и ролей и записали в  vault;
 - [V] Провели проверку политик - Не смогли записать otus-rw/config потому что в политиках ранее не указали разрешение на update:
-`path "otus/otus-rw/*" {
+```
+path "otus/otus-rw/*" {
 capabilities = ["read", "create", "list","update"]`
+```
 - [V] Скопировали vault-agent-k8s-demo из репозитория vault-guides и скорректировал конфиги с учетом ранее
 созданых ролей и секретов  -  config-k8s/example-k8-spec.yaml  и  configmap.yaml
 - [V] Запустили под и проверили  index.html :
-`cat index.html
+```
+cat index.html
 <html>
 <body>
 <p>Some secrets:</p>
@@ -510,11 +523,13 @@ capabilities = ["read", "create", "list","update"]`
 
 </body>
 </html>`
+```
 
 - [V] Включили pki секретс и подписали урлы;
 - [V] создали промежуточный сертификат и прописали его в vault;
 - [V] Создали и отозвали сертификат:
 '
+```
 Key                 Value
 ---                 -----
 ca_chain            [-----BEGIN CERTIFICATE-----
@@ -614,6 +629,7 @@ private_key_type    rsa
 serial_number       4b:83:44:17:34:20:31:11:9f:ae:24:08:6a:e9:30:af:30:df:15:83''
 
 
+```
 ## PR checklist:
  - [V] Выставлен label с темой домашнего задания
  </details>
