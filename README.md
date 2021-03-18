@@ -406,7 +406,6 @@ Events:  <none>`
 
  - [V] Основное ДЗ
  - [] Задание со *
-
 ## В процессе сделано:
 - [V] Установлен vault и consul:
 ```
@@ -631,5 +630,68 @@ serial_number       4b:83:44:17:34:20:31:11:9f:ae:24:08:6a:e9:30:af:30:df:15:83'
 
 ```
 ## PR checklist:
+ - [V] Выставлен label с темой домашнего задания
+ </details>
+
+<details><summary>ДЗ № 12</summary>
+
+ - [V] Основное ДЗ
+ - [ ] Задание со *
+
+## В процессе сделано:
+- [V] Создал CRD и snapshot-controller - kubectl apply -f crd_volumesnapshot;
+- [V] Задеплоил csi-driver-host-path - kubectl apply -f hostpath :
+```
+NAME                         READY   STATUS    RESTARTS   AGE
+csi-hostpath-attacher-0      1/1     Running   0          7s
+csi-hostpath-provisioner-0   1/1     Running   0          6s
+csi-hostpath-resizer-0       1/1     Running   0          6s
+csi-hostpath-snapshotter-0   1/1     Running   0          6s
+csi-hostpath-socat-0         1/1     Running   0          6s
+csi-hostpathplugin-0         5/5     Running   0          6s
+snapshot-controller-0        1/1     Running   0          13s
+```
+- [V] Создал POD StorageClass и PVC - kubectl apply  -f csi-app_pvc:
+```
+NAME      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
+csi-pvc   Bound    pvc-cb32f65b-912c-4183-950c-8c13102eba82   1Gi        RWO            csi-hostpath-sc   1m
+```
+- [V] Запишем в pvc :
+```
+kubectl exec -it my-csi-app /bin/sh
+/ # touch /data/hello-world
+/ # exit
+```
+- [V] Проверим что  файл есть :
+```
+kubectl exec -it $(kubectl get pods --selector app=csi-hostpathplugin -o jsonpath='{.items[*].metadata.name}') -c hostpath /bin/sh
+/ # find / -name hello-world
+/csi-data-dir/853cf954-8808-11eb-922f-36e61f069e21/hello-world
+```
+- [V]Установим volumesnapshotclass - kubectl apply -f snapshotter:
+```
+kubectl get volumesnapshotclass
+NAME                     AGE
+csi-hostpath-snapclass   3s
+```
+- [V] Создадим снэпшот - kubectl apply -f csi-snapshot-v1beta1.yaml:
+```
+kubectl get volumesnapshot
+NAME                AGE
+new-snapshot-demo   69s
+```
+- [V] Удаляем POD и PVC
+- [V] Восстанавливаем snapshot - kubectl apply -g csi-restore.yaml:
+```
+kubectl get pvc
+NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
+hpvc-restore   Bound    pvc-23810ee6-4e62-4e13-917b-aec10011b6c6   1Gi        RWO            csi-hostpath-sc   80s
+```
+- [V] Проверяем что  файл есть :
+```
+kubectl exec -it my-csi-app /bin/sh
+/ # ls /data/
+/ # hello-world
+```## PR checklist:
  - [V] Выставлен label с темой домашнего задания
  </details>
