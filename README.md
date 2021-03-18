@@ -638,6 +638,11 @@ serial_number       4b:83:44:17:34:20:31:11:9f:ae:24:08:6a:e9:30:af:30:df:15:83'
  - [V] Основное ДЗ
  - [ ] Задание со *
 
+<details><summary>ДЗ № 12</summary>
+
+ - [V] Основное ДЗ
+ - [ ] Задание со *
+
 ## В процессе сделано:
 - [V] Создал CRD и snapshot-controller - kubectl apply -f crd_volumesnapshot;
 - [V] Задеплоил csi-driver-host-path - kubectl apply -f hostpath :
@@ -681,17 +686,19 @@ NAME                AGE
 new-snapshot-demo   69s
 ```
 - [V] Удаляем POD и PVC
-- [V] Восстанавливаем snapshot - kubectl apply -g csi-restore.yaml:
+- [V] Восстанавливаем snapshot - kubectl apply -f csi-restore.yaml:
 ```
 kubectl get pvc
 NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
 hpvc-restore   Bound    pvc-23810ee6-4e62-4e13-917b-aec10011b6c6   1Gi        RWO            csi-hostpath-sc   80s
 ```
+- [V] запускаем под kubectl apply -f csi-app.yaml
 - [V] Проверяем что  файл есть :
 ```
 kubectl exec -it my-csi-app /bin/sh
 / # ls /data/
 / # hello-world
-```## PR checklist:
+```
+## PR checklist:
  - [V] Выставлен label с темой домашнего задания
  </details>
