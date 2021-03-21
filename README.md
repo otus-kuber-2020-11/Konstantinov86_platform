@@ -637,12 +637,6 @@ serial_number       4b:83:44:17:34:20:31:11:9f:ae:24:08:6a:e9:30:af:30:df:15:83'
 
  - [V] Основное ДЗ
  - [ ] Задание со *
-
-<details><summary>ДЗ № 12</summary>
-
- - [V] Основное ДЗ
- - [ ] Задание со *
-
 ## В процессе сделано:
 - [V] Создал CRD и snapshot-controller - kubectl apply -f crd_volumesnapshot;
 - [V] Задеплоил csi-driver-host-path - kubectl apply -f hostpath :
@@ -699,6 +693,104 @@ kubectl exec -it my-csi-app /bin/sh
 / # ls /data/
 / # hello-world
 ```
+## PR checklist:
+ - [V] Выставлен label с темой домашнего задания
+ </details>
+
+ <details><summary>ДЗ № 13</summary>
+
+ - [V] Основное ДЗ
+ - [ ] Задание со *
+
+- [V] Работа c kubectl-debug:
+Не работает strace ,потому что необходимо добавлять разрешения для ptrace в контейнере  --cap-add=SYS_PTRACE (в Docker 19.3 системные вызовы ptrace разрешены);
+В манифесте kubectl-debug  из ДЗ стоит версия дебаг пода -  0.0.1 ,где  не выставлено данное разрешение;
+Можно  заменить на версию 0.1.1 где применен данный коммит:
+```
+		UsernsMode:  container.UsernsMode(m.containerMode(targetId)),
+		IpcMode:     container.IpcMode(m.containerMode(targetId)),
+		PidMode:     container.PidMode(m.containerMode(targetId)),
+		CapAdd:      strslice.StrSlice([]string{"SYS_PTRACE", "SYS_ADMIN"}),
+	}
+	ctx, cancel := m.getContextWithTimeout()
+	defer cancel()
+  ```
+- [V] установил оператор netperf-operator и тестовый cr kubectl apply -f /kit/deploy-netperf:
+```
+Name:         example
+Namespace:    test
+Labels:       <none>
+Annotations:  <none>
+API Version:  app.example.com/v1alpha1
+Kind:         Netperf
+Metadata:
+  Creation Timestamp:  2021-03-21T13:37:20Z
+  Generation:          4
+  Managed Fields:
+    API Version:  app.example.com/v1alpha1
+    Fields Type:  FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .:
+          f:kubectl.kubernetes.io/last-applied-configuration:
+    Manager:      kubectl-client-side-apply
+    Operation:    Update
+    Time:         2021-03-21T13:37:20Z
+    API Version:  app.example.com/v1alpha1
+    Fields Type:  FieldsV1
+    fieldsV1:
+      f:spec:
+        .:
+        f:clientNode:
+        f:serverNode:
+      f:status:
+        .:
+        f:clientPod:
+        f:serverPod:
+        f:speedBitsPerSec:
+        f:status:
+    Manager:         netperf-operator
+    Operation:       Update
+    Time:            2021-03-21T13:37:20Z
+  Resource Version:  1736749
+  Self Link:         /apis/app.example.com/v1alpha1/namespaces/test/netperfs/example
+  UID:               195e3ad8-9c3e-4750-8b54-f21dbc2b464a
+Spec:
+  Client Node:
+  Server Node:
+Status:
+  Client Pod:          netperf-client-f21dbc2b464a
+  Server Pod:          netperf-server-f21dbc2b464a
+  Speed Bits Per Sec:  1875.14
+  Status:              Done
+Events:                <none>
+```
+- [V] Добавляем сетевую политику calico -  kubectl apply -f netperf-calico-policy.yaml:
+```
+sudo iptables --list -nv | grep LOG
+    0     0 LOG        all  --  *      *       0.0.0.0/0            0.0.0.0/0            /* cali:XWC9Bycp2Xf7yVk1 */ LOG flags 0 level 5 prefix "calico-packet: "
+    9   540 LOG        all  --  *      *       0.0.0.0/0            0.0.0.0/0            /* cali:B30DykF1ntLW86eD */ LOG flags 0 level 5 prefix "calico-packet: "
+```
+- [V] Запускаем iptables-tailer, kubectl apply -f iptables-tailer.yaml -( необходимо доработать предоставленный манифест так как extensions/v1beta1 deprecated ):
+- [V] Появились ошибки account :
+````
+kube-system   4m5s        Warning   FailedCreate        daemonset/kube-iptables-tailer                 Error creating: pods "kube-iptables-tailer-" is forbidden: error looking up service account kube-system/kube-iptables-tailer: serviceaccount "kube-iptables-tailer" not found
+````
+Создадим SA -kubectl apply  -f sa.yaml;
+- [V] Изменим префикс PTABLES_LOG_PREFIX на calico-packet и  JOURNAL_DIRECTORY на /var/log/journal;
+- [V] Перезапустим тесты и увидим результат :
+```
+Events:
+  Type     Reason      Age   From                  Message
+  ----     ------      ----  ----                  -------
+  Normal   Scheduled   26s   default-scheduler     Successfully assigned test/netperf-server-36acf46d0825 to gke-serious-energy-serious-energy-nod-9289b5e6-igkc
+  Normal   Pulling     25s   kubelet               Pulling image "tailoredcloud/netperf:v2.7"
+  Normal   Pulled      22s   kubelet               Successfully pulled image "tailoredcloud/netperf:v2.7"
+  Normal   Created     22s   kubelet               Created container netperf-server-36acf46d0825
+  Normal   Started     22s   kubelet               Started container netperf-server-36acf46d0825
+  Warning  PacketDrop  18s   kube-iptables-tailer  Packet dropped when receiving traffic from 10.84.2.10
+  ```
 ## PR checklist:
  - [V] Выставлен label с темой домашнего задания
  </details>
