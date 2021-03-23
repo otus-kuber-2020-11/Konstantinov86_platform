@@ -1154,14 +1154,14 @@ download_file | Download item --------------------------------------------------
 download_container | Download image if required --------------------------------------------------------------------------------------------- 3.65s
 download_file | Download item --------------------------------------------------------------------------------------------------------------- 3.45s
 ```
-````
+```
 root@node1:~# kubectl get nodes
 NAME    STATUS   ROLES                  AGE     VERSION
 node1   Ready    control-plane,master   2m26s   v1.20.5
 node2   Ready    <none>                 2m26s   v1.20.5
 node3   Ready    <none>                 2m26s   v1.20.5
 node4   Ready    <none>                 2m26s   v1.20.5
-
+```
 
 ## PR checklist:
  - [V] Выставлен label с темой домашнего задания
