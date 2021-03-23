@@ -794,3 +794,375 @@ Events:
 ## PR checklist:
  - [V] Выставлен label с темой домашнего задания
  </details>
+
+<details><summary>ДЗ № 14</summary>
+
+ - [V] Основное ДЗ
+ - [ ] Задание со *
+
+## В процессе сделано:
+- [V] В GCP создал 4 ноды с образом Ubuntu 18.04 LTS:
+ ```
+ template-for-master-1	europe-north1-a	10.166.0.31 (nic0)	35.228.204.142 	 	
+ template-for-worker-1	europe-north1-a	10.166.0.32 (nic0)	35.228.182.231 	 	
+ template-for-worker-2	europe-north1-a	10.166.0.33 (nic0)	35.228.60.147 	 	
+ template-for-worker-3	europe-north1-a	10.166.0.34 (nic0)	35.228.126.189
+ ```	
+
+- [V] Установил ПО и произвел kubeadm init :
+```
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 10.166.0.31:6443 --token h9c9x9.yn6c5pq66nsagaqz \
+    --discovery-token-ca-cert-hash sha256:b9a23cb6c768905b762593a9d9e2336a1de1e6cec8fd2ebc0e12a6906982d95e
+```
+
+```
+NAME                    STATUS   ROLES    AGE   VERSION
+template-for-master-1   Ready    master   11m   v1.17.4
+```
+
+
+- [V] Заджоинил остальные ноды :
+```
+root@template-for-master-1:~# kubectl get nodes
+NAME                    STATUS   ROLES    AGE   VERSION
+template-for-master-1   Ready    master   16m   v1.17.4
+template-for-worker-1   Ready    <none>   65s   v1.17.4
+template-for-worker-2   Ready    <none>   62s   v1.17.4
+template-for-worker-3   Ready    <none>   57s   v1.17.4
+```
+- [V] Задеплоил nginx:
+```
+root@template-for-master-1:~# kubectl get pods -o wide
+NAME                               READY   STATUS    RESTARTS   AGE   IP              NODE                    NOMINATED NODE   READINESS GATES
+nginx-deployment-c8fd555cc-8vkdw   1/1     Running   0          19s   192.168.0.65    template-for-worker-1   <none>           <none>
+nginx-deployment-c8fd555cc-9hkmg   1/1     Running   0          19s   192.168.0.2     template-for-worker-2   <none>           <none>
+nginx-deployment-c8fd555cc-qvr88   1/1     Running   0          19s   192.168.0.1     template-for-worker-2   <none>           <none>
+nginx-deployment-c8fd555cc-s6zs2   1/1     Running   0          19s   192.168.0.129   template-for-worker-3   <none>
+```
+- [V] Обновил kubectl:
+```
+root@template-for-master-1:~# kubectl get nodes
+NAME                    STATUS   ROLES    AGE     VERSION
+template-for-master-1   Ready    master   23m     v1.18.0
+template-for-worker-1   Ready    <none>   8m15s   v1.17.4
+template-for-worker-2   Ready    <none>   8m12s   v1.17.4
+template-for-worker-3   Ready    <none>   8m7s    v1.17.4
+```
+- [V]Провел upgrade:
+```
+root@template-for-master-1:~# kubeadm upgrade plan
+[upgrade/config] Making sure the configuration is correct:
+[upgrade/config] Reading configuration from the cluster...
+[upgrade/config] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
+[preflight] Running pre-flight checks.
+[upgrade] Running cluster health checks
+[upgrade] Fetching available versions to upgrade to
+[upgrade/versions] Cluster version: v1.17.17
+[upgrade/versions] kubeadm version: v1.18.0
+I0323 18:02:25.720194   10558 version.go:252] remote version is much newer: v1.20.5; falling back to: stable-1.18
+[upgrade/versions] Latest stable version: v1.18.17
+[upgrade/versions] Latest stable version: v1.18.17
+[upgrade/versions] Latest version in the v1.17 series: v1.17.17
+[upgrade/versions] Latest version in the v1.17 series: v1.17.17
+
+Components that must be upgraded manually after you have upgraded the control plane with 'kubeadm upgrade apply':
+COMPONENT   CURRENT       AVAILABLE
+Kubelet     3 x v1.17.4   v1.18.17
+            1 x v1.18.0   v1.18.17
+
+Upgrade to the latest stable version:
+
+COMPONENT            CURRENT    AVAILABLE
+API Server           v1.17.17   v1.18.17
+Controller Manager   v1.17.17   v1.18.17
+Scheduler            v1.17.17   v1.18.17
+Kube Proxy           v1.17.17   v1.18.17
+CoreDNS              1.6.5      1.6.7
+Etcd                 3.4.3      3.4.3-0
+
+You can now apply the upgrade by executing the following command:
+
+	kubeadm upgrade apply v1.18.17
+
+Note: Before you can perform this upgrade, you have to update kubeadm to v1.18.17.
+
+_____________________________________________________________________
+
+root@template-for-master-1:~# kubeadm upgrade apply v1.18.0
+[upgrade/config] Making sure the configuration is correct:
+[upgrade/config] Reading configuration from the cluster...
+[upgrade/config] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
+[preflight] Running pre-flight checks.
+[upgrade] Running cluster health checks
+[upgrade/version] You have chosen to change the cluster version to "v1.18.0"
+[upgrade/versions] Cluster version: v1.17.17
+[upgrade/versions] kubeadm version: v1.18.0
+[upgrade/confirm] Are you sure you want to proceed with the upgrade? [y/N]: y
+[upgrade/prepull] Will prepull images for components [kube-apiserver kube-controller-manager kube-scheduler etcd]
+[upgrade/prepull] Prepulling image for component etcd.
+[upgrade/prepull] Prepulling image for component kube-apiserver.
+[upgrade/prepull] Prepulling image for component kube-controller-manager.
+[upgrade/prepull] Prepulling image for component kube-scheduler.
+[apiclient] Found 1 Pods for label selector k8s-app=upgrade-prepull-kube-scheduler
+[apiclient] Found 1 Pods for label selector k8s-app=upgrade-prepull-kube-controller-manager
+[apiclient] Found 1 Pods for label selector k8s-app=upgrade-prepull-kube-apiserver
+[apiclient] Found 0 Pods for label selector k8s-app=upgrade-prepull-etcd
+[apiclient] Found 1 Pods for label selector k8s-app=upgrade-prepull-etcd
+[upgrade/prepull] Prepulled image for component etcd.
+[upgrade/prepull] Prepulled image for component kube-apiserver.
+[upgrade/prepull] Prepulled image for component kube-scheduler.
+[upgrade/prepull] Prepulled image for component kube-controller-manager.
+[upgrade/prepull] Successfully prepulled the images for all the control plane components
+[upgrade/apply] Upgrading your Static Pod-hosted control plane to version "v1.18.0"...
+Static pod: kube-apiserver-template-for-master-1 hash: dca0ec96c1010ef7509ea293180e0334
+Static pod: kube-controller-manager-template-for-master-1 hash: c43b349fe40aab07b8e29b4a2be8c4af
+Static pod: kube-scheduler-template-for-master-1 hash: d2768f36096b01759dbdef9ca638ffd0
+[upgrade/etcd] Upgrading to TLS for etcd
+[upgrade/etcd] Non fatal issue encountered during upgrade: the desired etcd version for this Kubernetes version "v1.18.0" is "3.4.3-0", but the current etcd version is "3.4.3". Won't downgrade etcd, instead just continue
+[upgrade/staticpods] Writing new Static Pod manifests to "/etc/kubernetes/tmp/kubeadm-upgraded-manifests758490787"
+W0323 18:04:09.996066   11825 manifests.go:225] the default kube-apiserver authorization-mode is "Node,RBAC"; using "Node,RBAC"
+[upgrade/staticpods] Preparing for "kube-apiserver" upgrade
+[upgrade/staticpods] Renewing apiserver certificate
+[upgrade/staticpods] Renewing apiserver-kubelet-client certificate
+[upgrade/staticpods] Renewing front-proxy-client certificate
+[upgrade/staticpods] Renewing apiserver-etcd-client certificate
+[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/kube-apiserver.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2021-03-23-18-04-09/kube-apiserver.yaml"
+[upgrade/staticpods] Waiting for the kubelet to restart the component
+[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
+Static pod: kube-apiserver-template-for-master-1 hash: dca0ec96c1010ef7509ea293180e0334
+Static pod: kube-apiserver-template-for-master-1 hash: dca0ec96c1010ef7509ea293180e0334
+Static pod: kube-apiserver-template-for-master-1 hash: dca0ec96c1010ef7509ea293180e0334
+Static pod: kube-apiserver-template-for-master-1 hash: dca0ec96c1010ef7509ea293180e0334
+Static pod: kube-apiserver-template-for-master-1 hash: dca0ec96c1010ef7509ea293180e0334
+Static pod: kube-apiserver-template-for-master-1 hash: dca0ec96c1010ef7509ea293180e0334
+Static pod: kube-apiserver-template-for-master-1 hash: dca0ec96c1010ef7509ea293180e0334
+Static pod: kube-apiserver-template-for-master-1 hash: dca0ec96c1010ef7509ea293180e0334
+Static pod: kube-apiserver-template-for-master-1 hash: b745f7117ed8859a23a89ae4ef65c7ce
+[apiclient] Found 1 Pods for label selector component=kube-apiserver
+[upgrade/staticpods] Component "kube-apiserver" upgraded successfully!
+[upgrade/staticpods] Preparing for "kube-controller-manager" upgrade
+[upgrade/staticpods] Renewing controller-manager.conf certificate
+[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/kube-controller-manager.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2021-03-23-18-04-09/kube-controller-manager.yaml"
+[upgrade/staticpods] Waiting for the kubelet to restart the component
+[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
+Static pod: kube-controller-manager-template-for-master-1 hash: c43b349fe40aab07b8e29b4a2be8c4af
+Static pod: kube-controller-manager-template-for-master-1 hash: d2348e74203d3930979c00d811721b6c
+[apiclient] Found 1 Pods for label selector component=kube-controller-manager
+[upgrade/staticpods] Component "kube-controller-manager" upgraded successfully!
+[upgrade/staticpods] Preparing for "kube-scheduler" upgrade
+[upgrade/staticpods] Renewing scheduler.conf certificate
+[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/kube-scheduler.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2021-03-23-18-04-09/kube-scheduler.yaml"
+[upgrade/staticpods] Waiting for the kubelet to restart the component
+[upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
+Static pod: kube-scheduler-template-for-master-1 hash: d2768f36096b01759dbdef9ca638ffd0
+Static pod: kube-scheduler-template-for-master-1 hash: 5795d0c442cb997ff93c49feeb9f6386
+[apiclient] Found 1 Pods for label selector component=kube-scheduler
+[upgrade/staticpods] Component "kube-scheduler" upgraded successfully!
+[upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
+[kubelet] Creating a ConfigMap "kubelet-config-1.18" in namespace kube-system with the configuration for the kubelets in the cluster
+[kubelet-start] Downloading configuration for the kubelet from the "kubelet-config-1.18" ConfigMap in the kube-system namespace
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+[bootstrap-token] configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+[bootstrap-token] configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
+[addons] Applied essential addon: CoreDNS
+[addons] Applied essential addon: kube-proxy
+
+[upgrade/successful] SUCCESS! Your cluster was upgraded to "v1.18.0". Enjoy!
+```
+```
+root@template-for-master-1:~# kubeadm version
+kubeadm version: &version.Info{Major:"1", Minor:"18", GitVersion:"v1.18.0", GitCommit:"9e991415386e4cf155a24b1da15becaa390438d8", GitTreeState:"clean", BuildDate:"2020-03-25T14:56:30Z", GoVersion:"go1.13.8", Compiler:"gc", Platform:"linux/amd64"}
+
+root@template-for-master-1:~# kubectl describe pod kube-apiserver-template-for-master-1 -n kube-system
+Name:                 kube-apiserver-template-for-master-1
+Namespace:            kube-system
+Priority:             2000000000
+Priority Class Name:  system-cluster-critical
+Node:                 template-for-master-1/10.166.0.31
+Start Time:           Tue, 23 Mar 2021 18:00:48 +0000
+Labels:               component=kube-apiserver
+                      tier=control-plane
+Annotations:          kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint: 10.166.0.31:6443
+                      kubernetes.io/config.hash: b745f7117ed8859a23a89ae4ef65c7ce
+                      kubernetes.io/config.mirror: b745f7117ed8859a23a89ae4ef65c7ce
+                      kubernetes.io/config.seen: 2021-03-23T18:04:11.56746527Z
+                      kubernetes.io/config.source: file
+Status:               Running
+IP:                   10.166.0.31
+IPs:
+  IP:           10.166.0.31
+Controlled By:  Node/template-for-master-1
+Containers:
+  kube-apiserver:
+    Container ID:  docker://c97d0ffd48463a05fb9b8796e64b4949d646b5d693f4d028274950b3b4f7d267
+    Image:         k8s.gcr.io/kube-apiserver:v1.18.0
+    Image ID:      docker-pullable://k8s.gcr.io/kube-apiserver@sha256:fc4efb55c2a7d4e7b9a858c67e24f00e739df4ef5082500c2b60ea0903f18248
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      kube-apiserver
+      --advertise-address=10.166.0.31
+      --allow-privileged=true
+      --authorization-mode=Node,RBAC
+      --client-ca-file=/etc/kubernetes/pki/ca.crt
+      --enable-admission-plugins=NodeRestriction
+      --enable-bootstrap-token-auth=true
+      --etcd-cafile=/etc/kubernetes/pki/etcd/ca.crt
+      --etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.crt
+      --etcd-keyfile=/etc/kubernetes/pki/apiserver-etcd-client.key
+      --etcd-servers=https://127.0.0.1:2379
+      --insecure-port=0
+      --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.crt
+      --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key
+      --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+      --proxy-client-cert-file=/etc/kubernetes/pki/front-proxy-client.crt
+      --proxy-client-key-file=/etc/kubernetes/pki/front-proxy-client.key
+      --requestheader-allowed-names=front-proxy-client
+      --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt
+      --requestheader-extra-headers-prefix=X-Remote-Extra-
+      --requestheader-group-headers=X-Remote-Group
+      --requestheader-username-headers=X-Remote-User
+      --secure-port=6443
+      --service-account-key-file=/etc/kubernetes/pki/sa.pub
+      --service-cluster-ip-range=10.96.0.0/12
+      --tls-cert-file=/etc/kubernetes/pki/apiserver.crt
+      --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
+    State:          Running
+      Started:      Tue, 23 Mar 2021 18:04:12 +0000
+    Ready:          True
+    Restart Count:  0
+    Requests:
+      cpu:        250m
+    Liveness:     http-get https://10.166.0.31:6443/healthz delay=15s timeout=15s period=10s #success=1 #failure=8
+    Environment:  <none>
+    Mounts:
+      /etc/ca-certificates from etc-ca-certificates (ro)
+      /etc/kubernetes/pki from k8s-certs (ro)
+      /etc/ssl/certs from ca-certs (ro)
+      /usr/local/share/ca-certificates from usr-local-share-ca-certificates (ro)
+      /usr/share/ca-certificates from usr-share-ca-certificates (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  ca-certs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/ssl/certs
+    HostPathType:  DirectoryOrCreate
+  etc-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/ca-certificates
+    HostPathType:  DirectoryOrCreate
+  k8s-certs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/kubernetes/pki
+    HostPathType:  DirectoryOrCreate
+  usr-local-share-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/local/share/ca-certificates
+    HostPathType:  DirectoryOrCreate
+  usr-share-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/share/ca-certificates
+    HostPathType:  DirectoryOrCreate
+QoS Class:         Burstable
+Node-Selectors:    <none>
+Tolerations:       :NoExecute
+Events:
+  Type    Reason   Age    From                            Message
+  ----    ------   ----   ----                            -------
+  Normal  Pulled   4m20s  kubelet, template-for-master-1  Container image "k8s.gcr.io/kube-apiserver:v1.18.0" already present on machine
+  Normal  Created  4m20s  kubelet, template-for-master-1  Created container kube-apiserver
+  Normal  Started  4m20s  kubelet, template-for-master-1  Started container kube-apiserver
+```
+
+- [V] Выведем ноду из эксплуатации:
+```
+root@template-for-master-1:~# kubectl get nodes -o wide
+NAME                    STATUS                     ROLES    AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION   CONTAINER-RUNTIME
+template-for-master-1   Ready                      master   34m   v1.18.0   10.166.0.31   <none>        Ubuntu 18.04.5 LTS   5.4.0-1038-gcp   docker://19.3.8
+template-for-worker-1   Ready,SchedulingDisabled   <none>   19m   v1.17.4   10.166.0.32   <none>        Ubuntu 18.04.5 LTS   5.4.0-1038-gcp   docker://19.3.8
+template-for-worker-2   Ready                      <none>   19m   v1.17.4   10.166.0.33   <none>        Ubuntu 18.04.5 LTS   5.4.0-1038-gcp   docker://19.3.8
+template-for-worker-3   Ready                      <none>   19m   v1.17.4   10.166.0.34   <none>        Ubuntu 18.04.5 LTS   5.4.0-1038-gcp   docker://19.3.8
+```
+- [V] Обновил воркер ноду :
+```
+root@template-for-master-1:~# kubectl get nodes
+NAME                    STATUS                     ROLES    AGE   VERSION
+template-for-master-1   Ready                      master   36m   v1.18.0
+template-for-worker-1   Ready,SchedulingDisabled   <none>   21m   v1.18.0
+template-for-worker-2   Ready                      <none>   21m   v1.17.4
+template-for-worker-3   Ready                      <none>   21m   v1.17.4
+```
+- [V] Обновил оставшиеся ноды :
+```
+root@template-for-master-1:~# kubectl get nodes
+NAME                    STATUS   ROLES    AGE   VERSION
+template-for-master-1   Ready    master   39m   v1.18.0
+template-for-worker-1   Ready    <none>   25m   v1.18.0
+template-for-worker-2   Ready    <none>   24m   v1.18.0
+template-for-worker-3   Ready    <none>   24m   v1.18.0
+```
+
+- [V] Установил с помощью kubespray:
+```
+PLAY RECAP *****************************************************************************************************************************************
+localhost                  : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+node1                      : ok=532  changed=107  unreachable=0    failed=0    skipped=633  rescued=0    ignored=1
+node2                      : ok=345  changed=67   unreachable=0    failed=1    skipped=394  rescued=0    ignored=1
+node3                      : ok=345  changed=67   unreachable=0    failed=1    skipped=393  rescued=0    ignored=1
+node4                      : ok=345  changed=67   unreachable=0    failed=1    skipped=393  rescued=0    ignored=1
+
+Tuesday 23 March 2021  22:16:19 +0300 (0:00:00.425)       0:08:06.681 *********
+===============================================================================
+container-engine/docker : ensure docker packages are installed ----------------------------------------------------------------------------- 28.67s
+kubernetes/control-plane : kubeadm | Initialize first master ------------------------------------------------------------------------------- 17.95s
+wait for etcd up --------------------------------------------------------------------------------------------------------------------------- 10.18s
+kubernetes/preinstall : Install packages requirements --------------------------------------------------------------------------------------- 9.71s
+download_container | Download image if required --------------------------------------------------------------------------------------------- 8.17s
+download_container | Download image if required --------------------------------------------------------------------------------------------- 7.30s
+kubernetes/preinstall : Update package management cache (APT) ------------------------------------------------------------------------------- 6.29s
+download_container | Download image if required --------------------------------------------------------------------------------------------- 5.63s
+Configure | Check if etcd cluster is healthy ------------------------------------------------------------------------------------------------ 5.45s
+kubernetes/preinstall : Get current calico cluster version ---------------------------------------------------------------------------------- 5.17s
+Configure | Wait for etcd cluster to be healthy --------------------------------------------------------------------------------------------- 5.14s
+download_file | Download item --------------------------------------------------------------------------------------------------------------- 5.08s
+download_container | Download image if required --------------------------------------------------------------------------------------------- 4.41s
+download_container | Download image if required --------------------------------------------------------------------------------------------- 4.39s
+download : check_pull_required |  Generate a list of information about the images on a node ------------------------------------------------- 4.18s
+download_container | Download image if required --------------------------------------------------------------------------------------------- 4.02s
+download_container | Download image if required --------------------------------------------------------------------------------------------- 3.84s
+download_file | Download item --------------------------------------------------------------------------------------------------------------- 3.74s
+download_container | Download image if required --------------------------------------------------------------------------------------------- 3.65s
+download_file | Download item --------------------------------------------------------------------------------------------------------------- 3.45s
+```
+````
+root@node1:~# kubectl get nodes
+NAME    STATUS   ROLES                  AGE     VERSION
+node1   Ready    control-plane,master   2m26s   v1.20.5
+node2   Ready    <none>                 2m26s   v1.20.5
+node3   Ready    <none>                 2m26s   v1.20.5
+node4   Ready    <none>                 2m26s   v1.20.5
+
+
+## PR checklist:
+ - [V] Выставлен label с темой домашнего задания
+ </details>
